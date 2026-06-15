@@ -1,7 +1,7 @@
 {
-  "name": "shop-backend",
+  "name": "printhub-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "PrintHub API Server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
