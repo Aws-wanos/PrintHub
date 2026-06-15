@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Disallow:
+# robots.txt for Russian Shop
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /cart/
+Sitemap: https://yourdomain.com/sitemap.xml
+Crawl-delay: 5
