@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./ContactUs.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 function ContactUs() {
   const [formData, setFormData] = useState({
     name: "",
