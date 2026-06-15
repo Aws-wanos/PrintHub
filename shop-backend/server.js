@@ -309,39 +309,7 @@ app.delete("/api/admin/contacts/:id", (req, res) => {
 
 // ============= REVIEWS ROUTES =============
 
-// Add new review
-app.post("/api/products/:productId/reviews", (req, res) => {
-  const { productId } = req.params;
-  const { customer_name, rating, comment } = req.body;
-
-  console.log("Review submitted:", {
-    productId,
-    customer_name,
-    rating,
-    comment,
-  });
-
-  // Validate rating
-  if (rating < 1 || rating > 5) {
-    return res.status(400).json({ error: "Rating must be between 1 and 5" });
-  }
-
-  // Insert review
-  db.query(
-    'INSERT INTO reviews (product_id, customer_name, rating, comment, status) VALUES (?, ?, ?, ?, "pending")',
-    [productId, customer_name, rating, comment],
-    (err, result) => {
-      if (err) {
-        console.error("Error saving review:", err);
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({
-        message: "Review submitted successfully! Awaiting approval.",
-        id: result.insertId,
-      });
-    },
-  );
-});
+// Get reviews for a product (only approved ones for customers)
 app.get("/api/products/:productId/reviews", (req, res) => {
   const { productId } = req.params;
   db.query(
@@ -354,28 +322,35 @@ app.get("/api/products/:productId/reviews", (req, res) => {
   );
 });
 
+// Add new review
 app.post("/api/products/:productId/reviews", (req, res) => {
   const { productId } = req.params;
   const { customer_name, rating, comment } = req.body;
 
+  console.log("Review received:", {
+    productId,
+    customer_name,
+    rating,
+    comment,
+  });
+
+  // Validate
+  if (!customer_name || !rating || !comment) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
   if (rating < 1 || rating > 5) {
     return res.status(400).json({ error: "Rating must be between 1 and 5" });
   }
 
+  // Insert review
   db.query(
     'INSERT INTO reviews (product_id, customer_name, rating, comment, status) VALUES (?, ?, ?, ?, "pending")',
     [productId, customer_name, rating, comment],
     (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-
-      db.query(
-        'UPDATE products SET total_reviews = total_reviews + 1, avg_rating = (SELECT AVG(rating) FROM reviews WHERE product_id = ? AND status = "approved") WHERE id = ?',
-        [productId, productId],
-        (updateErr) => {
-          if (updateErr) console.error("Error updating rating:", updateErr);
-        },
-      );
-
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: err.message });
+      }
       res.json({
         message: "Review submitted successfully! Awaiting approval.",
         id: result.insertId,
@@ -384,6 +359,7 @@ app.post("/api/products/:productId/reviews", (req, res) => {
   );
 });
 
+// Admin: Get all pending reviews
 app.get("/api/admin/reviews/pending", (req, res) => {
   db.query(
     'SELECT r.*, p.name as product_name FROM reviews r JOIN products p ON r.product_id = p.id WHERE r.status = "pending" ORDER BY r.created_at DESC',
@@ -394,6 +370,7 @@ app.get("/api/admin/reviews/pending", (req, res) => {
   );
 });
 
+// Admin: Get all reviews
 app.get("/api/admin/reviews", (req, res) => {
   db.query(
     "SELECT r.*, p.name as product_name FROM reviews r JOIN products p ON r.product_id = p.id ORDER BY r.created_at DESC",
@@ -404,6 +381,7 @@ app.get("/api/admin/reviews", (req, res) => {
   );
 });
 
+// Admin: Approve review
 app.put("/api/admin/reviews/:id/approve", (req, res) => {
   const { id } = req.params;
   db.query(
@@ -416,6 +394,7 @@ app.put("/api/admin/reviews/:id/approve", (req, res) => {
   );
 });
 
+// Admin: Delete review
 app.delete("/api/admin/reviews/:id", (req, res) => {
   const { id } = req.params;
   db.query("DELETE FROM reviews WHERE id = ?", [id], (err) => {
