@@ -219,31 +219,46 @@ app.put("/api/admin/orders/:id", (req, res) => {
 });
 
 // Admin login
-
-const bcrypt = require("bcryptjs");
-
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
+
+  console.log("Login attempt for:", username);
 
   db.query(
     "SELECT * FROM admins WHERE username = ?",
     [username],
     (err, results) => {
-      if (err) return res.status(500).json({ error: err.message });
-      if (results.length === 0)
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        console.log("User not found:", username);
         return res.status(401).json({ error: "Invalid credentials" });
+      }
 
       const admin = results[0];
+      console.log("User found, comparing passwords...");
+
+      // Compare the provided password with the hashed password in database
       bcrypt.compare(password, admin.password, (err, isMatch) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!isMatch)
+        if (err) {
+          console.error("Bcrypt error:", err);
+          return res.status(500).json({ error: err.message });
+        }
+
+        if (!isMatch) {
+          console.log("Password mismatch");
           return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        console.log("Login successful for:", username);
         res.json({ message: "Login successful", adminId: admin.id });
       });
     },
   );
 });
-
 // ============= CONTACT MESSAGES ROUTES =============
 
 app.post("/api/contact", (req, res) => {
