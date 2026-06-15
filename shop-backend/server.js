@@ -227,16 +227,16 @@ app.post("/api/admin/login", (req, res) => {
     [username],
     (err, results) => {
       if (err) return res.status(500).json({ error: err.message });
-
-      if (results.length === 0) {
+      if (results.length === 0)
         return res.status(401).json({ error: "Invalid credentials" });
-      }
 
-      if (password === "admin123") {
-        res.json({ message: "Login successful", adminId: results[0].id });
-      } else {
-        res.status(401).json({ error: "Invalid credentials" });
-      }
+      const admin = results[0];
+      bcrypt.compare(password, admin.password, (err, isMatch) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!isMatch)
+          return res.status(401).json({ error: "Invalid credentials" });
+        res.json({ message: "Login successful", adminId: admin.id });
+      });
     },
   );
 });
