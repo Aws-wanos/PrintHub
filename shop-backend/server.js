@@ -427,3 +427,12 @@ app.delete("/api/admin/reviews/:id", (req, res) => {
     res.json({ message: "Review deleted successfully" });
   });
 });
+// Test endpoint to check environment
+app.get("/api/test-env", (req, res) => {
+  res.json({
+    host: process.env.DB_HOST || "not set",
+    user: process.env.DB_USER || "not set",
+    database: process.env.DB_NAME || "not set",
+    node_version: process.version,
+  });
+});
