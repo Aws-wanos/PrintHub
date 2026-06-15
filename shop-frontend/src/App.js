@@ -60,6 +60,32 @@ function ServicesNavBar({ selectedCategory, setSelectedCategory }) {
   );
 }
 
+// Custom Order Banner Component
+function CustomOrderBanner() {
+  const location = useLocation();
+  const isAdminPage = location.pathname === "/admin";
+  const isCartPage = location.pathname === "/cart";
+
+  if (isAdminPage || isCartPage) {
+    return null;
+  }
+
+  return (
+    <div className="custom-order-banner">
+      <div className="banner-content">
+        <span className="banner-icon">🎨</span>
+        <span className="banner-text">
+          Вы можете заказать индивидуальный дизайн!
+        </span>
+        <span className="banner-contact">
+          📱 Telegram: @Printhub12 | WhatsApp: +79112057766 | Email:
+          aws.wanos.98@gmail.com
+        </span>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [showContactDropdown, setShowContactDropdown] = useState(false);
@@ -68,19 +94,19 @@ function App() {
     {
       name: "Telegram",
       icon: "📱",
-      url: "https://t.me/printhub",
+      url: "https://t.me/Printhub12",
       color: "#0088cc",
     },
     {
       name: "WhatsApp",
       icon: "💬",
-      url: "https://wa.me/79991234567",
+      url: "https://wa.me/79112057766",
       color: "#25D366",
     },
     {
       name: "Email",
       icon: "✉️",
-      url: "mailto:info@printhub.ru",
+      url: "mailto:aws.wanos.98@gmail.com",
       color: "#ea4335",
     },
   ];
@@ -142,6 +168,9 @@ function App() {
           selectedCategory={selectedCategory}
           setSelectedCategory={setSelectedCategory}
         />
+
+        {/* Custom Order Banner */}
+        <CustomOrderBanner />
 
         <Routes>
           <Route

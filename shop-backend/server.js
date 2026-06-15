@@ -309,6 +309,39 @@ app.delete("/api/admin/contacts/:id", (req, res) => {
 
 // ============= REVIEWS ROUTES =============
 
+// Add new review
+app.post("/api/products/:productId/reviews", (req, res) => {
+  const { productId } = req.params;
+  const { customer_name, rating, comment } = req.body;
+
+  console.log("Review submitted:", {
+    productId,
+    customer_name,
+    rating,
+    comment,
+  });
+
+  // Validate rating
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ error: "Rating must be between 1 and 5" });
+  }
+
+  // Insert review
+  db.query(
+    'INSERT INTO reviews (product_id, customer_name, rating, comment, status) VALUES (?, ?, ?, ?, "pending")',
+    [productId, customer_name, rating, comment],
+    (err, result) => {
+      if (err) {
+        console.error("Error saving review:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({
+        message: "Review submitted successfully! Awaiting approval.",
+        id: result.insertId,
+      });
+    },
+  );
+});
 app.get("/api/products/:productId/reviews", (req, res) => {
   const { productId } = req.params;
   db.query(

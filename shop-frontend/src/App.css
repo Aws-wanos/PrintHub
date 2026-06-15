@@ -1680,3 +1680,56 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+/* Custom Order Banner */
+.custom-order-banner {
+  background: linear-gradient(135deg, #ff9800 0%, #ff5722 100%);
+  color: white;
+  padding: 12px 20px;
+  text-align: center;
+  position: sticky;
+  top: 120px;
+  z-index: 998;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.banner-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.banner-icon {
+  font-size: 1.5rem;
+}
+
+.banner-text {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.banner-contact {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .custom-order-banner {
+    position: relative;
+    top: 0;
+  }
+  
+  .banner-content {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .banner-text {
+    font-size: 0.9rem;
+  }
+  
+  .banner-contact {
+    font-size: 0.8rem;
+  }
+}
