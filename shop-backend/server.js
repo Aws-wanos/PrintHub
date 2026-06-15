@@ -17,11 +17,28 @@ if (!fs.existsSync("uploads")) {
 }
 
 // MySQL Connection
+const mysql = require("mysql2");
+const fs = require("fs");
+const path = require("path");
+
+// Database connection with SSL for Timeweb
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "123aws123", // Your MySQL password
-  database: "russia_shop",
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: 3306,
+  ssl: {
+    rejectUnauthorized: false,
+  },
+});
+
+db.connect((err) => {
+  if (err) {
+    console.error("Database connection error:", err);
+    return;
+  }
+  console.log("Connected to MySQL database");
 });
 
 db.connect((err) => {
