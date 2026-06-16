@@ -3,8 +3,8 @@ import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 import Reviews from "./Reviews";
 
+// At the top of the file, change this:
 const API_URL = "https://aws-wanos-printhub-d2ce.twc1.net/api";
-const BASE_URL = API_URL.replace("/api", "");
 
 function ProductsPage({ selectedCategory, setSelectedCategory }) {
   const [products, setProducts] = useState([]);
