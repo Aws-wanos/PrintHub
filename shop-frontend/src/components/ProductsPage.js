@@ -254,6 +254,7 @@ function ProductsPage({ selectedCategory, setSelectedCategory }) {
                 <img
                   src={`https://aws-wanos-printhub-d2ce.twc1.net${product.image_url}`}
                   alt={product.name}
+                  className="product-image"
                 />
               )}
               <div className="product-category-badge">
