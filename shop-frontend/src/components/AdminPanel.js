@@ -76,6 +76,7 @@ function AdminPanel() {
     }
   };
 
+  // Fetch pending reviews
   const fetchPendingReviews = async () => {
     try {
       const response = await axios.get(`${API_URL}/admin/reviews/pending`);
@@ -85,12 +86,41 @@ function AdminPanel() {
     }
   };
 
+  // Fetch all reviews
   const fetchAllReviews = async () => {
     try {
       const response = await axios.get(`${API_URL}/admin/reviews`);
       setAllReviews(response.data);
     } catch (error) {
       console.error("Error fetching reviews:", error);
+    }
+  };
+
+  // Approve review
+  const approveReview = async (id) => {
+    try {
+      await axios.put(`${API_URL}/admin/reviews/${id}/approve`);
+      fetchPendingReviews();
+      fetchAllReviews();
+      alert("Review approved!");
+    } catch (error) {
+      console.error("Error approving review:", error);
+      alert("Error approving review");
+    }
+  };
+
+  // Delete review
+  const deleteReview = async (id) => {
+    if (window.confirm("Delete this review?")) {
+      try {
+        await axios.delete(`${API_URL}/admin/reviews/${id}`);
+        fetchPendingReviews();
+        fetchAllReviews();
+        alert("Review deleted!");
+      } catch (error) {
+        console.error("Error deleting review:", error);
+        alert("Error deleting review");
+      }
     }
   };
 

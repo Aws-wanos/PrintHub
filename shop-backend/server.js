@@ -159,6 +159,63 @@ app.post("/api/products/:productId/reviews", (req, res) => {
     },
   );
 });
+// Get pending reviews
+app.get("/api/admin/reviews/pending", (req, res) => {
+  db.query(
+    'SELECT r.*, p.name as product_name FROM reviews r JOIN products p ON r.product_id = p.id WHERE r.status = "pending" ORDER BY r.created_at DESC',
+    (err, results) => {
+      if (err) {
+        console.error("Error fetching pending reviews:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      res.json(results);
+    },
+  );
+});
+
+// Get all reviews
+app.get("/api/admin/reviews", (req, res) => {
+  db.query(
+    "SELECT r.*, p.name as product_name FROM reviews r JOIN products p ON r.product_id = p.id ORDER BY r.created_at DESC",
+    (err, results) => {
+      if (err) {
+        console.error("Error fetching reviews:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      res.json(results);
+    },
+  );
+});
+
+// Approve review
+app.put("/api/admin/reviews/:id/approve", (req, res) => {
+  const reviewId = req.params.id;
+
+  db.query(
+    'UPDATE reviews SET status = "approved" WHERE id = ?',
+    [reviewId],
+    (err) => {
+      if (err) {
+        console.error("Error approving review:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({ message: "Review approved successfully" });
+    },
+  );
+});
+
+// Delete review
+app.delete("/api/admin/reviews/:id", (req, res) => {
+  const reviewId = req.params.id;
+
+  db.query("DELETE FROM reviews WHERE id = ?", [reviewId], (err) => {
+    if (err) {
+      console.error("Error deleting review:", err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ message: "Review deleted successfully" });
+  });
+});
 
 // Admin routes
 app.post("/api/admin/products", upload.single("image"), (req, res) => {
@@ -215,6 +272,35 @@ app.put("/api/admin/products/:id", upload.single("image"), (req, res) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ message: "Product updated successfully" });
   });
+});
+app.put("/api/admin/orders/:id", (req, res) => {
+  const { status } = req.body;
+  const orderId = req.params.id;
+
+  console.log("Updating order:", orderId, "Status:", status);
+
+  // Validate status
+  const validStatuses = ["pending", "confirmed", "delivered", "cancelled"];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ error: "Invalid status" });
+  }
+
+  db.query(
+    "UPDATE orders SET status = ? WHERE id = ?",
+    [status, orderId],
+    (err, result) => {
+      if (err) {
+        console.error("Error updating order:", err);
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Order not found" });
+      }
+
+      res.json({ message: "Order updated successfully" });
+    },
+  );
 });
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
