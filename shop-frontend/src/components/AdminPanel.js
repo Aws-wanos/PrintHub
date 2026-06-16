@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://aws-wanos-printhub-d2ce.twc1.net/api";
+const API_URL = "https://aws-wanos-printhub-d2ce.twc1.net/api";
 
 function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

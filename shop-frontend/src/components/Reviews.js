@@ -2,9 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Reviews.css";
 
-const API_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://aws-wanos-printhub-d2ce.twc1.net/api";
+const API_URL = "https://aws-wanos-printhub-d2ce.twc1.net/api";
 
 function Reviews({ productId }) {
   const [reviews, setReviews] = useState([]);

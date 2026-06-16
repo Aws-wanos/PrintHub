@@ -3,9 +3,7 @@ import axios from "axios";
 import { useSearchParams } from "react-router-dom";
 import Reviews from "./Reviews";
 
-const API_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://aws-wanos-printhub-d2ce.twc1.net/api";
+const API_URL = "https://aws-wanos-printhub-d2ce.twc1.net/api";
 const BASE_URL = API_URL.replace("/api", "");
 
 function ProductsPage({ selectedCategory, setSelectedCategory }) {
@@ -255,8 +253,7 @@ function ProductsPage({ selectedCategory, setSelectedCategory }) {
               {product.image_url && (
                 <img
                   src={`https://aws-wanos-printhub-d2ce.twc1.net${product.image_url}`}
-                  alt={product.name || "Product"}
-                  className="product-image"
+                  alt={product.name}
                 />
               )}
               <div className="product-category-badge">
