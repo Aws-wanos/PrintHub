@@ -39,15 +39,64 @@ db.getConnection((err, connection) => {
   connection.release();
 });
 
-// Multer setup
+// Multer setup with error handling
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+  destination: function (req, file, cb) {
+    const uploadPath = path.join(__dirname, "uploads");
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
   },
 });
-const upload = multer({ storage: storage });
 
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
+
+// Product creation route
+app.post("/api/admin/products", upload.single("image"), (req, res) => {
+  console.log("Product creation request received");
+  console.log("Body:", req.body);
+  console.log("File:", req.file);
+
+  try {
+    const { name, description, price, stock, category } = req.body;
+    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+
+    // Validate required fields
+    if (!name || !price || !stock) {
+      return res
+        .status(400)
+        .json({ error: "Name, price, and stock are required" });
+    }
+
+    const query =
+      "INSERT INTO products (name, description, price, stock, category, image_url) VALUES (?, ?, ?, ?, ?, ?)";
+    db.query(
+      query,
+      [name, description, price, stock, category, image_url],
+      (err, result) => {
+        if (err) {
+          console.error("Database error:", err);
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({
+          message: "Product added successfully",
+          id: result.insertId,
+        });
+      },
+    );
+  } catch (error) {
+    console.error("Product creation error:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
 // ============ ROUTES ============
 
 // Test endpoint
@@ -113,17 +162,33 @@ app.post("/api/products/:productId/reviews", (req, res) => {
 
 // Admin routes
 app.post("/api/admin/products", upload.single("image"), (req, res) => {
-  const { name, description, price, stock, category } = req.body;
-  const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+  try {
+    const { name, description, price, stock, category } = req.body;
+    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
 
-  db.query(
-    "INSERT INTO products (name, description, price, stock, category, image_url) VALUES (?, ?, ?, ?, ?, ?)",
-    [name, description, price, stock, category, image_url],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ message: "Product added", id: result.insertId });
-    },
-  );
+    console.log("Saving product:", { name, price, stock, category, image_url });
+    console.log("File:", req.file);
+
+    const query =
+      "INSERT INTO products (name, description, price, stock, category, image_url) VALUES (?, ?, ?, ?, ?, ?)";
+    db.query(
+      query,
+      [name, description, price, stock, category, image_url],
+      (err, result) => {
+        if (err) {
+          console.error("Database error:", err);
+          return res.status(500).json({ error: err.message });
+        }
+        res.json({
+          message: "Product added successfully",
+          id: result.insertId,
+        });
+      },
+    );
+  } catch (error) {
+    console.error("Product creation error:", error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.delete("/api/admin/products/:id", (req, res) => {
@@ -247,4 +312,14 @@ app.use("/api/*", (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
+});
+app.post("/api/test-upload", upload.single("image"), (req, res) => {
+  console.log("Test upload received");
+  console.log("File:", req.file);
+  console.log("Body:", req.body);
+  res.json({
+    message: "Upload test successful",
+    file: req.file,
+    body: req.body,
+  });
 });
