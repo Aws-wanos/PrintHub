@@ -9,7 +9,7 @@ const fs = require("fs");
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Create uploads folder if not exists
 if (!fs.existsSync("uploads")) {
