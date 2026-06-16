@@ -197,7 +197,25 @@ app.delete("/api/admin/products/:id", (req, res) => {
     res.json({ message: "Product deleted" });
   });
 });
+app.put("/api/admin/products/:id", upload.single("image"), (req, res) => {
+  const { name, description, price, stock, category } = req.body;
+  let query =
+    "UPDATE products SET name=?, description=?, price=?, stock=?, category=?";
+  let params = [name, description, price, stock, category];
 
+  if (req.file) {
+    query += ", image_url=?";
+    params.push(`/uploads/${req.file.filename}`);
+  }
+
+  query += " WHERE id=?";
+  params.push(req.params.id);
+
+  db.query(query, params, (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Product updated successfully" });
+  });
+});
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
   db.query(

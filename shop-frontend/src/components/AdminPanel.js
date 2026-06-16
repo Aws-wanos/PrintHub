@@ -121,7 +121,10 @@ function AdminPanel() {
       resetForm();
     } catch (error) {
       console.error("Error saving product:", error);
-      alert("Error saving product");
+      alert(
+        "Error saving product: " +
+          (error.response?.data?.error || error.message),
+      );
     }
   };
 
