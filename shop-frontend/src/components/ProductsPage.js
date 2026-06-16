@@ -254,7 +254,7 @@ function ProductsPage({ selectedCategory, setSelectedCategory }) {
             <div key={product.id} className="product-card">
               {product.image_url && (
                 <img
-                  src={`${BASE_URL}${product.image_url}`}
+                  src={`https://aws-wanos-printhub-d2ce.twc1.net${product.image_url}`}
                   alt={product.name || "Product"}
                   className="product-image"
                 />
