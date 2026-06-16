@@ -742,3 +742,51 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
+// ---------- REVIEWS (FIXED) ----------
+// Get reviews for a product
+app.get("/api/products/:productId/reviews", (req, res) => {
+  const { productId } = req.params;
+
+  // Check if the reviews table exists
+  db.query(
+    "SELECT * FROM reviews WHERE product_id = ? AND status = 'approved' ORDER BY created_at DESC",
+    [productId],
+    (err, results) => {
+      if (err) {
+        console.error("Reviews query error:", err);
+        // Return empty array if table doesn't exist yet
+        return res.json([]);
+      }
+      res.json(results || []);
+    },
+  );
+});
+
+// Add a new review
+app.post("/api/products/:productId/reviews", (req, res) => {
+  const { productId } = req.params;
+  const { customer_name, rating, comment } = req.body;
+
+  if (!customer_name || !rating || !comment) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ error: "Rating must be between 1 and 5" });
+  }
+
+  // Insert review
+  db.query(
+    'INSERT INTO reviews (product_id, customer_name, rating, comment, status) VALUES (?, ?, ?, ?, "pending")',
+    [productId, customer_name, rating, comment],
+    (err, result) => {
+      if (err) {
+        console.error("Error saving review:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      res.json({
+        message: "Review submitted successfully! Awaiting approval.",
+        id: result.insertId,
+      });
+    },
+  );
+});
