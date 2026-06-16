@@ -1,7 +1,7 @@
 {
-  "short_name": "PrintHub",
-  "name": "PrintHub - Печать на заказ",
-  "description": "Качественная печать на футболках, кружках, шоперах и подушках",
+  "short_name": "PrintHub MSK",
+  "name": "PrintHub Moscow - Печать на заказ в Москве",
+  "description": "Качественная печать на футболках, кружках, шоперах и подушках в Москве",
   "icons": [
     {
       "src": "favicon.ico",
