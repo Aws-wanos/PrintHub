@@ -112,10 +112,62 @@ app.put("/api/admin/products/:id", upload.single("image"), (req, res) => {
 
 // Admin: Delete product
 app.delete("/api/admin/products/:id", (req, res) => {
-  db.query("DELETE FROM products WHERE id = ?", [req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Product deleted successfully" });
-  });
+  const productId = req.params.id;
+
+  console.log("Deleting product:", productId);
+
+  // First check if product exists
+  db.query(
+    "SELECT * FROM products WHERE id = ?",
+    [productId],
+    (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ error: "Product not found" });
+      }
+
+      // Delete order items first (foreign key constraint)
+      db.query(
+        "DELETE FROM order_items WHERE product_id = ?",
+        [productId],
+        (err) => {
+          if (err) {
+            console.error("Error deleting order items:", err);
+            // Continue anyway
+          }
+
+          // Delete reviews for this product
+          db.query(
+            "DELETE FROM reviews WHERE product_id = ?",
+            [productId],
+            (err) => {
+              if (err) {
+                console.error("Error deleting reviews:", err);
+                // Continue anyway
+              }
+
+              // Finally delete the product
+              db.query(
+                "DELETE FROM products WHERE id = ?",
+                [productId],
+                (err) => {
+                  if (err) {
+                    console.error("Error deleting product:", err);
+                    return res.status(500).json({ error: err.message });
+                  }
+                  res.json({ message: "Product deleted successfully" });
+                },
+              );
+            },
+          );
+        },
+      );
+    },
+  );
 });
 
 // ============= ORDER ROUTES =============
